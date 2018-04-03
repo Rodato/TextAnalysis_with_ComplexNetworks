@@ -5,9 +5,9 @@ library(wordcloud)
 library(SnowballC)
 library(ggplot2)
 
-
-setwd("")
-
+###I don't build this function. I get it in internet (don't remember where, maybe 
+### in github). saveAsGEXF exports an igraph object and write it in GEXF format
+### to deal with the visualization in gephi.
 saveAsGEXF<-function(g, filepath="converted_graph.gexf"){
   require(igraph)
   require(rgexf)
@@ -46,6 +46,8 @@ saveAsGEXF<-function(g, filepath="converted_graph.gexf"){
   print(output, filepath, replace=T)
 }
 
+
+###
 get_semantic_network<-function(paper,fqw){
 
 doc<-readPDF(control=list(text="-layout"))(elem=list(uri=paper), language="en")
@@ -98,6 +100,8 @@ for(word in dw[fqw,]){
 return(semantic_network)
 }
 
+
+###
 graph_to.gephi<-function(s){
   g<-graph.data.frame(s,directed = F)
   saveAsGEXF(g)
