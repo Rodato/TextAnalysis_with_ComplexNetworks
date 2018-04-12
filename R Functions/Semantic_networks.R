@@ -106,3 +106,34 @@ graph_to.gephi<-function(s){
   g<-graph.data.frame(s,directed = F)
   saveAsGEXF(g)
 }
+
+joint_networks<-function(df1,df2){
+  colnames(df1)<-c("w1.1","w2.1","cor.1")
+  colnames(df2)<-c("w1.2","w2.2","cor.2")
+  cw<-inner_join(df1,df2,by=c("w1.1"="w1.2"))
+  cwu1<-as.data.frame(unique(cw[,1]))
+  cwu2<-as.data.frame(unique(cw[,2]))
+  cwu3<-as.data.frame(unique(cw[,4]))
+  colnames(cwu1)<-c("c_edges")
+  colnames(cwu2)<-c("c_edges")
+  colnames(cwu3)<-c("c_edges")
+  cw<-rbind(cwu1,cwu2,cwu3)
+  cw<-as.data.frame(unique(cw[,1]))
+  cw$mark<-"CE"
+  colnames(cw)<-c("c_edges","CE")
+  return(cw)
+}
+
+all_verts<-function(df1,df2){
+  colnames(df1)<-c("w1.1","w2.1","cor.1")
+  colnames(df2)<-c("w1.2","w2.2","cor.2")
+  df1$mark<-"Cook"
+  df1$mark<-"Angrist"
+  df<-rbind(df1,df2)
+  dfa<-as.data.frame(unique(df[,1]))
+  dfb<-as.data.frame(unique(df[,2]))
+  colnames(dfa)<-"c_edges"
+  colnames(dfb)<-"c_edges"
+  dfa<-rbind(dfa,dfb)
+  return(dfa)
+}
