@@ -5,47 +5,9 @@ library(wordcloud)
 library(SnowballC)
 library(ggplot2)
 
-###I don't build this function. I get it in internet (don't remember where, maybe 
+###The function saveasGEFX was not build by me. I get it in internet (don't remember where, maybe 
 ### in github). saveAsGEXF exports an igraph object and write it in GEXF format
 ### to deal with the visualization in gephi.
-saveAsGEXF<-function(g, filepath="converted_graph.gexf"){
-  require(igraph)
-  require(rgexf)
-
-  # gexf nodes require two column data frame (id, label)
-  # check if the input vertices has label already present
-  # if not, just have the ids themselves as the label
-  if(is.null(V(g)$label))
-    V(g)$label <- as.character(V(g))
-
-  # similarily if edges does not have weight, add default 1 weight
-  if(is.null(E(g)$weight))
-    E(g)$weight <- rep.int(1, ecount(g))
-
-  nodes <- data.frame(cbind(V(g), V(g)$label))
-  edges <- t(Vectorize(get.edge, vectorize.args='id')(g, 1:ecount(g)))
-
-  # combine all node attributes into a matrix (and take care of & for xml)
-  vAttrNames <- setdiff(list.vertex.attributes(g), "label")
-  nodesAtt <- data.frame(sapply(vAttrNames, function(attr) sub("&", "&",get.vertex.attribute(g, attr))))
-
-  # combine all edge attributes into a matrix (and take care of & for xml)
-  eAttrNames <- setdiff(list.edge.attributes(g), "weight")
-  edgesAtt <- data.frame(sapply(eAttrNames, function(attr) sub("&", "&",get.edge.attribute(g, attr))))
-
-  # combine all graph attributes into a meta-data
-  graphAtt <- sapply(list.graph.attributes(g), function(attr) sub("&", "&",get.graph.attribute(g, attr)))
-
-  # generate the gexf object
-  output <- write.gexf(nodes, edges,
-                       edgesWeight=E(g)$weight,
-                       edgesAtt = edgesAtt,
-                       nodesAtt = nodesAtt,
-                       meta=c(list(creator="Gopalakrishna Palem", description="igraph -> gexf converted file", keywords="igraph, gexf, R, rgexf"), graphAtt))
-
-  print(output, filepath, replace=T)
-}
-
 
 ###
 get_semantic_network<-function(paper,fqw){
@@ -102,8 +64,45 @@ return(semantic_network)
 
 
 ###
-graph_to.gephi<-function(s){
-  g<-graph.data.frame(s,directed = F)
+graph_to.gephi<-function(s,e){
+  saveAsGEXF<-function(g, filepath="converted_graph.gexf"){
+    require(igraph)
+    require(rgexf)
+    
+    # gexf nodes require two column data frame (id, label)
+    # check if the input vertices has label already present
+    # if not, just have the ids themselves as the label
+    if(is.null(V(g)$label))
+      V(g)$label <- as.character(V(g))
+    
+    # similarily if edges does not have weight, add default 1 weight
+    if(is.null(E(g)$weight))
+      E(g)$weight <- rep.int(1, ecount(g))
+    
+    nodes <- data.frame(cbind(V(g), V(g)$label))
+    edges <- t(Vectorize(get.edge, vectorize.args='id')(g, 1:ecount(g)))
+    
+    # combine all node attributes into a matrix (and take care of & for xml)
+    vAttrNames <- setdiff(list.vertex.attributes(g), "label") 
+    nodesAtt <- data.frame(sapply(vAttrNames, function(attr) sub("&", "&",get.vertex.attribute(g, attr))))
+    
+    # combine all edge attributes into a matrix (and take care of & for xml)
+    eAttrNames <- setdiff(list.edge.attributes(g), "weight") 
+    edgesAtt <- data.frame(sapply(eAttrNames, function(attr) sub("&", "&",get.edge.attribute(g, attr))))
+    
+    # combine all graph attributes into a meta-data
+    graphAtt <- sapply(list.graph.attributes(g), function(attr) sub("&", "&",get.graph.attribute(g, attr)))
+    
+    # generate the gexf object
+    output <- write.gexf(nodes, edges, 
+                         edgesWeight=E(g)$weight,
+                         edgesAtt = edgesAtt,
+                         nodesAtt = nodesAtt,
+                         meta=c(list(creator="Gopalakrishna Palem", description="igraph -> gexf converted file", keywords="igraph, gexf, R, rgexf"), graphAtt))
+    
+    print(output, filepath, replace=T)
+  }
+  g<-graph.data.frame(s,directed = F,vertices = e)
   saveAsGEXF(g)
 }
 
@@ -125,15 +124,27 @@ joint_networks<-function(df1,df2){
 }
 
 all_verts<-function(df1,df2){
-  colnames(df1)<-c("w1.1","w2.1","cor.1")
-  colnames(df2)<-c("w1.2","w2.2","cor.2")
+  colnames(df1)<-c("w1","w2","cor")
+  colnames(df2)<-c("w1","w2","cor")
   df1$mark<-"Cook"
-  df1$mark<-"Angrist"
+  df2$mark<-"Angrist"
   df<-rbind(df1,df2)
-  dfa<-as.data.frame(unique(df[,1]))
-  dfb<-as.data.frame(unique(df[,2]))
-  colnames(dfa)<-"c_edges"
-  colnames(dfb)<-"c_edges"
-  dfa<-rbind(dfa,dfb)
-  return(dfa)
+  df<-df[!duplicated(df[,c(1,2)]), ]
+  dfa<-df[,c(1,4)]
+  colnames(dfa)<-c("c_edges","mark")
+  dfb<-df[,c(2,4)]
+  colnames(dfb)<-c("c_edges","mark")
+  dfa<-dfa[!duplicated(dfa[,c(1)]), ]
+  dfb<-dfb[!duplicated(dfb[,c(1)]), ]
+  df<-rbind(dfa,dfb)
+  return(df)
+}
+
+total_nodes<-function(df1,df2){
+  colnames(df1)<-c("c_edges","mark")
+  colnames(df2)<-c("c_edges","mark")
+  fj<-df2[!df2$c_edges%in%df1$c_edges,]
+  f<-rbind(df1,fj)
+  f<-f[!duplicated(f[,c(1)]), ]
+  return(f)
 }
