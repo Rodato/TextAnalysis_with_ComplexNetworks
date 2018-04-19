@@ -1,9 +1,5 @@
 library(tm)
 library(igraph)
-library(RColorBrewer)
-library(wordcloud)
-library(SnowballC)
-library(ggplot2)
 
 ###The function saveasGEFX was not build by me. I get it in internet (don't remember where, maybe 
 ### in github). saveAsGEXF exports an igraph object and write it in GEXF format
@@ -151,10 +147,10 @@ total_nodes<-function(df1,df2){
 
 
 ##Order to runing the functions
-s1<-get_semantic_network("b88.pdf",1:15)
-s2<-get_semantic_network("s80.pdf",1:15)
+s1<-get_semantic_network("doc1.pdf",1:15)
+s2<-get_semantic_network("doc.pdf",1:15)
 j1<-joint_networks(s1,s2)
-f1<-all_verts(s1,s2,"b88","s80")
+f1<-all_verts(s1,s2,"doc1","doc2")
 f2<-total_nodes(j1,f1)
 s<-rbind(s1,s2)
 g<-graph.data.frame(s,directed = F,vertices = f2)
