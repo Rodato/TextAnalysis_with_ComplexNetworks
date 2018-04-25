@@ -1,5 +1,9 @@
 library(tm)
 library(igraph)
+library(rgexf)   
+library(RColorBrewer)
+library(ggplot2)
+library(dplyr)
 
 ###The function saveasGEFX was not build by me. I get it in internet (don't remember where, maybe 
 ### in github). saveAsGEXF exports an igraph object and write it in GEXF format
