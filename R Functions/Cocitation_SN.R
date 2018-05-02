@@ -1,3 +1,10 @@
+library(tm)
+library(igraph)
+library(rgexf)   
+library(RColorBrewer)
+library(ggplot2)
+library(dplyr)
+
 joint_cocitationnetwork<-function(df1,df2,df3){
   colnames(s1)<-c("w1.1","w2.1","cor.1")
   colnames(s2)<-c("w1.2","w2.2","cor.2")
