@@ -1,0 +1,33 @@
+joint_cocitationnetwork<-function(df1,df2,df3){
+  colnames(s1)<-c("w1.1","w2.1","cor.1")
+  colnames(s2)<-c("w1.2","w2.2","cor.2")
+  colnames(s3)<-c("w1.3","w2.3","cor.3")
+  cw1<-inner_join(s1,s3,by=c("w1.1"="w1.3"))
+  cw2<-inner_join(s2,s3,by=c("w1.2"="w1.3"))
+  ##1
+  cwu1.1<-as.data.frame(unique(cw1[,1]))
+  cwu2.1<-as.data.frame(unique(cw1[,2]))
+  cwu3.1<-as.data.frame(unique(cw1[,4]))
+  colnames(cwu1.1)<-c("c_edges")
+  colnames(cwu2.1)<-c("c_edges")
+  colnames(cwu3.1)<-c("c_edges")
+  cw1<-rbind(cwu1.1,cwu2.1,cwu3.1)
+  cw1<-as.data.frame(unique(cw1[,1]))
+  colnames(cw1)<-c("c_edges")
+  ##2
+  cwu1.2<-as.data.frame(unique(cw2[,1]))
+  cwu2.2<-as.data.frame(unique(cw2[,2]))
+  cwu3.2<-as.data.frame(unique(cw2[,4]))
+  colnames(cwu1.2)<-c("c_edges")
+  colnames(cwu2.2)<-c("c_edges")
+  colnames(cwu3.2)<-c("c_edges")
+  cw2<-rbind(cwu1.2,cwu2.2,cwu3.2)
+  cw2<-as.data.frame(unique(cw2[,1]))
+  colnames(cw2)<-c("c_edges")
+  ##
+  cw<-inner_join(cw1,cw2,by=c("c_edges"="c_edges"))
+  cw$mark<-"CE"
+  colnames(cw)<-c("c_edges","CE")
+  
+  return(cw)
+}
