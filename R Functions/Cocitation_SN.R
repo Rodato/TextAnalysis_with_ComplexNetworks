@@ -38,3 +38,22 @@ joint_cocitationnetwork<-function(df1,df2,df3){
   
   return(cw)
 }
+
+all_cocverts<-function(df1,df2,m1,m2,m3){
+  colnames(df1)<-c("w1","w2","cor")
+  colnames(df2)<-c("w1","w2","cor")
+  colnames(df3)<-c("w1","w2","cor")
+  df1$mark<-m1
+  df2$mark<-m2
+  df3$mark<-m3
+  df<-rbind(df1,df2,df3)
+  df<-df[!duplicated(df[,c(1,2)]), ]
+  dfa<-df[,c(1,4)]
+  colnames(dfa)<-c("c_edges","mark")
+  dfb<-df[,c(2,4)]
+  colnames(dfb)<-c("c_edges","mark")
+  dfa<-dfa[!duplicated(dfa[,c(1)]), ]
+  dfb<-dfb[!duplicated(dfb[,c(1)]), ]
+  df<-rbind(dfa,dfb)
+  return(df)
+}
