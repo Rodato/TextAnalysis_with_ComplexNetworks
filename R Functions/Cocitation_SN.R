@@ -57,3 +57,21 @@ all_cocverts<-function(df1,df2,m1,m2,m3){
   df<-rbind(dfa,dfb)
   return(df)
 }
+
+
+##Order to runing the cocitations functions
+setwd("/Volumes/HD/Archivos/Scripts/Python/TextAn")
+s1<-get_semantic_network(".pdf",1:15)
+s2<-get_semantic_network(".pdf",1:15)
+s3<-get_semantic_network(".pdf",1:15)
+j1<-joint_cocitationnetwork(s1,s2,s3)
+f1<-all_cocverts(s1,s2,s3,"p88","s80","c07")
+f2<-total_nodes(j1,f1)
+colnames(s1)<-c("w1","w2","cor")
+colnames(s2)<-c("w1","w2","cor")
+colnames(s3)<-c("w1","w2","cor")
+s<-rbind(s1,s2,s3)
+g<-graph.data.frame(s,directed = F,vertices = f2)
+g<-simplify(g,remove.multiple = T,remove.loops = F)
+setwd("")
+saveAsGEXF(g)
