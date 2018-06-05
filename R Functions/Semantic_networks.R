@@ -62,50 +62,6 @@ for(word in dw[fqw,]){
 return(semantic_network)
 }
 
-
-###
-graph_to.gephi<-function(s,e){
-  saveAsGEXF<-function(g, filepath="converted_graph.gexf"){
-    require(igraph)
-    require(rgexf)
-    
-    # gexf nodes require two column data frame (id, label)
-    # check if the input vertices has label already present
-    # if not, just have the ids themselves as the label
-    if(is.null(V(g)$label))
-      V(g)$label <- as.character(V(g))
-    
-    # similarily if edges does not have weight, add default 1 weight
-    if(is.null(E(g)$weight))
-      E(g)$weight <- rep.int(1, ecount(g))
-    
-    nodes <- data.frame(cbind(V(g), V(g)$label))
-    edges <- t(Vectorize(get.edge, vectorize.args='id')(g, 1:ecount(g)))
-    
-    # combine all node attributes into a matrix (and take care of & for xml)
-    vAttrNames <- setdiff(list.vertex.attributes(g), "label") 
-    nodesAtt <- data.frame(sapply(vAttrNames, function(attr) sub("&", "&",get.vertex.attribute(g, attr))))
-    
-    # combine all edge attributes into a matrix (and take care of & for xml)
-    eAttrNames <- setdiff(list.edge.attributes(g), "weight") 
-    edgesAtt <- data.frame(sapply(eAttrNames, function(attr) sub("&", "&",get.edge.attribute(g, attr))))
-    
-    # combine all graph attributes into a meta-data
-    graphAtt <- sapply(list.graph.attributes(g), function(attr) sub("&", "&",get.graph.attribute(g, attr)))
-    
-    # generate the gexf object
-    output <- write.gexf(nodes, edges, 
-                         edgesWeight=E(g)$weight,
-                         edgesAtt = edgesAtt,
-                         nodesAtt = nodesAtt,
-                         meta=c(list(creator="Gopalakrishna Palem", description="igraph -> gexf converted file", keywords="igraph, gexf, R, rgexf"), graphAtt))
-    
-    print(output, filepath, replace=T)
-  }
-  g<-graph.data.frame(s,directed = F,vertices = e)
-  saveAsGEXF(g)
-}
-
 joint_networks<-function(df1,df2){
   colnames(df1)<-c("w1.1","w2.1","cor.1")
   colnames(df2)<-c("w1.2","w2.2","cor.2")
@@ -159,4 +115,4 @@ f2<-total_nodes(j1,f1)
 s<-rbind(s1,s2)
 g<-graph.data.frame(s,directed = F,vertices = f2)
 g<-simplify(g,remove.multiple = T,remove.loops = F)
-saveAsGEXF(g)
+write_graph(g,"your_graph_name.gml",format="gml")
